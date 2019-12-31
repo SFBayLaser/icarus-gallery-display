@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+out=""
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *)    optarg= ;;
+  esac
+
+  case $1 in
+      --includes)
+        if [ -z ${CETLIB_EXCEPT_INC+x} ]; then
+          out="-I${GALLERY_INC} \
+               -I${BOOST_INC} \
+               -I${CANVAS_INC} \
+               -I${HEP_CONCURRENCY_INC} \
+               -I${CANVAS_ROOT_IO_INC} \
+               -I${CETLIB_INC} \
+               -I${FHICLCPP_INC} \
+               -I${LARDATAOBJ_INC} \
+               -I${NUSIMDATA_INC} \
+               -I${LARCOREOBJ_INC} \
+               -I${LARCOREALG_INC} \
+               -I${CLHEP_INC} \
+               -I${ART_INC} \
+               -I${MESSAGEFACILITY_INC}"
+        else
+          out="-I${GALLERY_INC} \
+               -I${BOOST_INC} \
+               -I${CANVAS_INC} \
+               -I${HEP_CONCURRENCY_INC} \
+               -I${CANVAS_ROOT_IO_INC} \
+               -I${CETLIB_INC} \
+               -I${CETLIB_EXCEPT_INC} \
+               -I${FHICLCPP_INC} \
+               -I${LARDATAOBJ_INC} \
+               -I${NUSIMDATA_INC} \
+               -I${LARCOREALG_INC} \
+               -I${LARCOREOBJ_INC} \
+               -I${CLHEP_INC} \
+               -I${ART_INC} \
+               -I${MESSAGEFACILITY_INC}"
+        fi
+    ;;
+      --libdir)
+    out="${GALLERY_LIB} ${BOOST_LIB} ${CANVAS_LIB} ${CANVAS_ROOT_IO_LIB} ${CETLIB_LIB} ${CETLIB_EXCEPT_LIB}"
+    ;;
+      --libs)
+        if [ -z ${CETLIB_EXCEPT_LIB+x} ]; then
+
+          out="-L${CANVAS_LIB} -lcanvas_Persistency_Common -lcanvas_Persistency_Provenance -lcanvas_Utilities \
+               -L${CANVAS_ROOT_IO_LIB} -lcanvas_root_io \
+               -L${CETLIB_LIB} -lcetlib \
+               -L${GALLERY_LIB} -lgallery \
+               -L${NUSIMDATA_LIB} -lnusimdata_SimulationBase \
+               -L${LARCOREOBJ_LIB} -llarcoreobj_SummaryData \
+               -L${LARCOREALG_LIB} -llarcorealg_Geometry \
+               -L${LARDATAOBJ_LIB} -llardataobj_RecoBase \
+               -L${MESSAGEFACILITY_LIB} -lMF_MessageLogger"
+        else
+          out="-L${CANVAS_LIB} -lcanvas \
+               -L${CANVAS_ROOT_IO_LIB} -lcanvas_root_io \
+               -L${CETLIB_EXCEPT_LIB} -lcetlib_except \
+               -L${CETLIB_LIB} -lcetlib \
+               -L${GALLERY_LIB} -lgallery \
+               -L${NUSIMDATA_LIB} -lnusimdata_SimulationBase \
+               -L${LARCOREOBJ_LIB} -llarcoreobj_SummaryData \
+               -L${LARCOREALG_LIB} -llarcorealg_Geometry \
+               -L${LARDATAOBJ_LIB} -llardataobj_RecoBase \
+               -L${MESSAGEFACILITY_LIB} -lMF_MessageLogger"  
+        fi
+    ;;
+      --help)
+    ### Print a help message
+          echo "Usage: `basename $0` [options]"
+    echo ""
+    echo "  --includes ... print out includes"
+    echo "  --libs     ... print out libraries"
+    exit 0
+    ;;
+      *)
+    ### Give an error
+          echo "Unknown argument \"$1\"!" 1>&2
+    echo "${usage}" 1>&2
+    exit 1
+    ;;
+  esac
+  shift
+done
+echo $out
