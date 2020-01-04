@@ -45,7 +45,7 @@ class geoBase(object):
     def length(self):
        return self._length
 
-    def nViews(self):
+    def Nviews(self):
         return self._nViews
 
     def tRange(self):
@@ -69,7 +69,7 @@ class geoBase(object):
     def time2cm(self):
         return self._time2Cm
 
-    def name(self):
+    def DetectorName(self):
         return self._name
 
     def offset(self, plane):

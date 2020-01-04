@@ -24,8 +24,6 @@ OSNAME          = $(shell uname -s)
 HOST            = $(shell uname -n)
 OSNAMEMODE      = $(OSNAME)
 
-
-
 include $(GALLERY_FMWK_BASEDIR)/Makefile/Makefile.${OSNAME}
 
 # set compiler options for ROOT

@@ -16,30 +16,28 @@
 #define EVD_DRAWRAWDIGIT_H
 
 #include "Analysis/anabase.h"
-#include "LArUtil/Geometria.h"
+//#include "LArUtil/Geometria.h"
 #include "RawBase.h"
-#include "UbooneNoiseFilter/UbooneNoiseFilter.h"
+//#include "UbooneNoiseFilter/UbooneNoiseFilter.h"
 
-#include "TTree.h"
-#include "TGraph.h"
+//#include "TTree.h"
+//#include "TGraph.h"
 
-#include "canvas/Persistency/Common/FindMany.h"
-#include "canvas/Utilities/InputTag.h"
+//#include "canvas/Persistency/Common/FindMany.h"
+//#include "canvas/Utilities/InputTag.h"
 #include "gallery/Event.h"
 
-#include "lardataobj/RawData/RawDigit.h"
+//#include "lardataobj/RawData/RawDigit.h"
 
 
+//struct _object;
+//typedef _object PyObject;
 
-
-struct _object;
-typedef _object PyObject;
-
-
-#ifndef __CINT__
-#include "Python.h"
-#include "numpy/arrayobject.h"
-#endif
+//#ifndef __CLING__
+//#include "Python.h"
+//#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+//#include "numpy/arrayobject.h"
+//#endif
 
 
 namespace evd {
@@ -52,7 +50,7 @@ class DrawRawDigit : public galleryfmwk::anabase, public RawBase {
 public:
 
     /// Default constructor
-    DrawRawDigit();
+    DrawRawDigit(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
     /// Default destructor
     virtual ~DrawRawDigit() {}
@@ -81,7 +79,7 @@ private:
     // Store whether or not to correct the data
     bool _correct_data;
 
-    ub_noise_filter::UbooneNoiseFilter _noise_filter;
+    //ub_noise_filter::UbooneNoiseFilter _noise_filter;
     std::vector<size_t> _padding_by_plane;
 
 };

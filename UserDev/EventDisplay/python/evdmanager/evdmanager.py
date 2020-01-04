@@ -68,8 +68,9 @@ class processer(object):
 
     def process_event(self, gallery_event):
         # print "Running ... "
+        print("  ==> prcessing event, ana_units len:",len(self._ana_units))
         for key in self._ana_units:
-            # print "Processing " + key
+            print("Processing " + key)
             self._ana_units[key].analyze(gallery_event)
 
     def add_process(self, data_product, ana_unit):
@@ -164,7 +165,7 @@ class evd_manager_base(manager, QtCore.QObject):
             #     print "NuMu type name is " + str(prod.typeName())
             _product = prod._typeName
 
-
+            print("   - product: ", _product, ", ==key: ",key)
 
 
             # Add the product to the "all" list and 
@@ -300,6 +301,7 @@ class evd_manager_base(manager, QtCore.QObject):
 
     def processEvent(self, force=False):
         if self._lastProcessed != self._event or force:
+            print("  ++> in processEvent, calling processor")
             self._processer.process_event(self._data_manager)
             self._lastProcessed = self._event
 
@@ -352,6 +354,7 @@ class evd_manager_2D(evd_manager_base):
     def redrawProduct(self, informal_type, product, view_manager):
         # print "Received request to redraw ", product, " by ",producer
         # First, determine if there is a drawing process for this product:
+        print("***> redrawProduct  called, informal_type:",informal_type,", product:",product," <***")
         if product is None:
             if informal_type in self._drawnClasses:
                 self._drawnClasses[informal_type].clearDrawnObjects(self._view_manager)
@@ -437,6 +440,7 @@ class evd_manager_2D(evd_manager_base):
     # handle all the wire stuff:
     def toggleWires(self, product, stage=None):
         # Now, either add the drawing process or remove it:
+        print("toggleWires: product=",product)
 
         if stage is None:
             stage = 'all'
@@ -457,11 +461,13 @@ class evd_manager_2D(evd_manager_base):
                 print("No raw digit data available to draw")
                 self._drawWires = False
                 return
+            print("  --> in rawdigit block, setting up wireDrawer")
             self._drawWires = True
             self._wireDrawer = datatypes.rawDigit(self._geom)
             self._wireDrawer.setProducer(self._keyTable[stage]['raw::RawDigit'][0].fullName())
             self._processer.add_process("raw::RawDigit", self._wireDrawer._process)
             self._wireDrawer.toggleNoiseFilter(self.filterNoise)
+            print("  --> in rawdigit block, calling processEvent")
 
             self.processEvent(True)
         else:

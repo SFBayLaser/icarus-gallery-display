@@ -16,25 +16,25 @@
 #define EVD_DRAWRAWWIRE_H
 
 #include "Analysis/anabase.h"
-#include "LArUtil/Geometria.h"
+//#include "LArUtil/Geometria.h"
 #include "RawBase.h"
 
-#include "canvas/Persistency/Common/FindMany.h"
-#include "canvas/Utilities/InputTag.h"
+//#include "canvas/Persistency/Common/FindMany.h"
+//#include "canvas/Utilities/InputTag.h"
 #include "gallery/Event.h"
 
-#include "lardataobj/RecoBase/Wire.h"
+//#include "lardataobj/RecoBase/Wire.h"
 
-#include "TTree.h"
-#include "TGraph.h"
+//#include "TTree.h"
+//#include "TGraph.h"
 
 struct _object;
 typedef _object PyObject;
 
-#ifndef __CINT__
+#ifndef __CLING__
 #include "Python.h"
 #include "numpy/arrayobject.h"
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+//#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #endif
 
 
@@ -48,7 +48,7 @@ namespace evd {
   public:
 
     /// Default constructor
-    DrawWire();
+    DrawWire(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
     /// Default destructor
     virtual ~DrawWire(){}

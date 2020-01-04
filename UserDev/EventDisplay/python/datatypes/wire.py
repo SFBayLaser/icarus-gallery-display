@@ -17,12 +17,14 @@ class wire(dataBase):
 
 class recoWire(wire):
 
-    def __init__(self, geom):
+    def __init__(self, detectorConfig):
+        print("In recoWire initialization, detectorConfig type:",type(detectorConfig))
         super(recoWire, self).__init__()
-        self._process = evd.DrawWire()
+        print("  >>> initializing the DrawWire object")
+        self._process = evd.DrawWire(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self._process.initialize()
         self._process.setInput(self._producerName)
-        for plane in xrange(geom.nViews()):
+        for plane in range(detectorConfig.nViews()):
             self._process.setYDimension(geom.readoutWindowSize(),plane)
             print(geom.readoutPadding())
             if geom.readoutPadding() != 0:
@@ -36,20 +38,23 @@ class recoWire(wire):
 
 class rawDigit(wire):
 
-    def __init__(self, geom):
+    def __init__(self, detectorConfig):
+        print("In rawDigit initialization, detectorConfig type:",type(detectorConfig))
         super(rawDigit, self).__init__()
-        self._process = evd.DrawRawDigit()
-        for i in xrange(len(geom._pedestals)):
-            self._process.setPedestal(geom._pedestals[i], i)
+        print("  >>> initializing the DrawRawDigit object")
+        self._process = evd.DrawRawDigit(detectorConfig._geometryCore,detectorConfig._detectorProperties)
+        for i in range(len(detectorConfig._pedestals)):
+            self._process.setPedestal(detectorConfig._pedestals[i], i)
         self._process.initialize()
-        if "boone" in geom.name():
+        if "boone" in detectorConfig.DetectorName():
             self._process.SetCorrectData(False)
         else:
             self._process.SetCorrectData(False)
-        for plane in xrange(geom.nViews()):
-            self._process.setYDimension(geom.readoutWindowSize(),plane)
-            if geom.readoutPadding() != 0:
-                self._process.setPadding(geom.readoutPadding(), plane)
+        for plane in range(detectorConfig.Nplanes()):
+            print(">>>> Setting y dim in wire.py for plane ",plane," to ",detectorConfig.readoutWindowSize())
+            self._process.setYDimension(detectorConfig.readoutWindowSize(),plane)
+            if detectorConfig.readoutPadding() != 0:
+                self._process.setPadding(detectorConfig.readoutPadding(), plane)
 
 
     def setProducer(self, producer):

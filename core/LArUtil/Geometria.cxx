@@ -37,32 +37,6 @@ Geometria::Geometria(bool default_load) : LArUtilitiesBase()
     LoadData();
 
     std::cout << "Geometria constructor, data loaded" << std::endl;
-
-    /*
-     * the "test" environment configuration
-     */
-    // read FHiCL configuration from a configuration file:
-    std::string const& configFile("test");
-    std::cout << "Geometria looking for cfg file with name: " << configFile << std::endl;
-    fhicl::ParameterSet config = lar::standalone::ParseConfiguration(configFile);
-    std::cout << " ... done" << std::endl;
-  
-    // set up message facility (always picked from "services.message")
-    lar::standalone::SetupMessageFacility(config, "galleryAnalysis");
-  
-    // configuration from the "analysis" table of the FHiCL configuration file:
-    auto const& analysisConfig = config.get<fhicl::ParameterSet>("analysis");
-  
-    // ***************************************************************************
-    // ***  SERVICE PROVIDER SETUP BEGIN  ****************************************
-    // ***************************************************************************
-    //
-    // Uncomment the things you need
-    // (and make sure the corresponding headers are also uncommented)
-    //
-  
-    // geometry setup (it's special)
-    auto geom = lar::standalone::SetupGeometry<geo::ChannelMapStandardAlg>(config.get<fhicl::ParameterSet>("services.Geometry"));
   }
 }
 

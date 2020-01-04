@@ -137,7 +137,7 @@ class evdgui(gui):
     def getEastLayout(self):
         # This function just makes a dummy eastern layout to use.
         label1 = QtGui.QLabel("EVD")
-        geoName = self._geometry.name()
+        geoName = self._geometry.DetectorName()
         label2 = QtGui.QLabel(geoName.capitalize())
         font = label1.font()
         font.setBold(True)
@@ -199,7 +199,7 @@ class evdgui(gui):
         self._noneWireButton.toggle()
 
         # Microboone only:
-        if self._geometry.name() == "uboone":
+        if self._geometry.DetectorName() == "uboone":
             self._noiseFilterBox = QtGui.QCheckBox("Noise Filter")
             self._noiseFilterBox.stateChanged.connect(self.noiseFilterWorker)
             self._eastLayout.addWidget(self._noiseFilterBox)

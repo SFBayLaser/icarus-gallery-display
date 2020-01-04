@@ -16,20 +16,20 @@
 
 #include <iostream>
 #include <vector>
-#include "LArUtil/Geometria.h"
-#include "LArUtil/DetProperties.h"
+
+#include "larcorealg/Geometry/GeometryCore.h"
+#include "lardataalg/DetectorInfo/DetectorProperties.h"
 
 
 struct _object;
 typedef _object PyObject;
 
 
-
 #ifndef __CLING__
 #include "Python.h"
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
 #endif
-
 
 
 namespace evd {
@@ -44,7 +44,7 @@ namespace evd {
   public:
 
     /// Default constructor
-    RawBase();
+    RawBase(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
     /// Default destructor
     virtual ~RawBase();
@@ -86,13 +86,12 @@ namespace evd {
     std::vector<std::vector<float > > _planeData;
 
     // these two objects hold the dimensions of the data:
-    std::vector<unsigned int> _x_dimensions;
-    std::vector<unsigned int> _y_dimensions;
+    std::vector<size_t> _x_dimensions;
+    std::vector<size_t> _y_dimensions;
+    std::vector<float>  _pedestals;
 
-    std::vector<float> _pedestals;
-
-    const larutil::Geometria * geoService;
-    const larutil::DetProperties * detProp;
+    const geo::GeometryCore&           geoService;
+    const detinfo::DetectorProperties& detProp;
 
     std::string _producer;
 

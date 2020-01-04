@@ -18,6 +18,7 @@ while test $# -gt 0; do
                -I${CETLIB_INC} \
                -I${FHICLCPP_INC} \
                -I${LARDATAOBJ_INC} \
+               -I${LARDATAALG_INC} \
                -I${NUSIMDATA_INC} \
                -I${LARCOREOBJ_INC} \
                -I${LARCOREALG_INC} \
@@ -34,6 +35,7 @@ while test $# -gt 0; do
                -I${CETLIB_EXCEPT_INC} \
                -I${FHICLCPP_INC} \
                -I${LARDATAOBJ_INC} \
+               -I${LARDATAALG_INC} \
                -I${NUSIMDATA_INC} \
                -I${LARCOREALG_INC} \
                -I${LARCOREOBJ_INC} \
@@ -56,6 +58,7 @@ while test $# -gt 0; do
                -L${LARCOREOBJ_LIB} -llarcoreobj_SummaryData \
                -L${LARCOREALG_LIB} -llarcorealg_Geometry \
                -L${LARDATAOBJ_LIB} -llardataobj_RecoBase \
+               -L${LARDATAALG_LIB} -llardataalg_DetectorInfo \
                -L${MESSAGEFACILITY_LIB} -lMF_MessageLogger"
         else
           out="-L${CANVAS_LIB} -lcanvas \
@@ -67,6 +70,7 @@ while test $# -gt 0; do
                -L${LARCOREOBJ_LIB} -llarcoreobj_SummaryData \
                -L${LARCOREALG_LIB} -llarcorealg_Geometry \
                -L${LARDATAOBJ_LIB} -llardataobj_RecoBase \
+               -L${LARDATAALG_LIB} -llardataalg_DetectorInfo \
                -L${MESSAGEFACILITY_LIB} -lMF_MessageLogger"  
         fi
     ;;

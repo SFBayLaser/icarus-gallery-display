@@ -198,7 +198,7 @@ class view_manager(QtCore.QObject):
 
 
   def drawPlanes(self,event_manager):
-    for i in xrange(len(self._drawerList)):
+    for i in range(len(self._drawerList)):
       if event_manager.hasWireData():
         self._drawerList[i].drawPlane(event_manager.getPlane(i))
       else:
@@ -222,7 +222,7 @@ class view_manager(QtCore.QObject):
     if not self._wireDrawer.isVisible():
       return
     offset = self._geometry.timeOffsetTicks(hits[0].plane())
-    for i in xrange(len(hits)):
+    for i in range(len(hits)):
       hit = hits[i]
       xPts = np.linspace(hit.start_time() + offset, hit.end_time() + offset, hit.end_time() - hit.start_time() + 1)
       yPts = hit.peak_amplitude() * np.exp( - 0.5 * (xPts - (hit.peak_time() + offset))**2 / hit.rms()**2  )
@@ -431,7 +431,7 @@ class gui(QtGui.QWidget):
   def viewSelectWorker(self):
 
     i = 0
-    for i in xrange(self._geometry.nViews()):
+    for i in range(self._geometry.Nviews()):
       if self.sender() == self._viewButtonArray[i]:
         self._view_manager.selectPlane(i)
         self._view_manager.refreshDrawListWidget()
@@ -527,7 +527,7 @@ class gui(QtGui.QWidget):
 
     i = 0
     self._viewButtonArray = []
-    for plane in xrange(self._geometry.nViews()):
+    for plane in range(self._geometry.Nviews()):
       button = QtGui.QRadioButton("Plane" + str(i))
       i += 1
       self._viewButtonGroup.addButton(button)
@@ -623,7 +623,7 @@ class gui(QtGui.QWidget):
     self.southLayout = self.getSouthLayout()
 
     # Area to hold data:
-    nviews = self._geometry.nViews()
+    nviews = self._geometry.Nviews()
     # nviews = self._baseData._nviews
     for i in range(0, nviews):
       # These boxes hold the wire/time views:

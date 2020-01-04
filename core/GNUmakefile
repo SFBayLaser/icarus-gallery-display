@@ -15,7 +15,7 @@
 #
 # Define directories to be compile upon a global "make"...
 #
-SUBDIRS :=  Base Analysis LArUtil
+SUBDIRS :=  Base Analysis LArUtil test
 
 #####################################################################################
 #

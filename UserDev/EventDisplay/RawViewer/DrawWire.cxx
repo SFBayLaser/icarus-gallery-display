@@ -6,9 +6,20 @@
 #include "DrawWire.h"
 #include "LArUtil/DetProperties.h"
 
+//#include "canvas/Persistency/Common/FindMany.h"
+//#include "canvas/Utilities/InputTag.h"
+#include "gallery/Event.h"
+
+#include "lardataobj/RecoBase/Wire.h"
+
+//#include "TTree.h"
+//#include "TGraph.h"
+
 namespace evd {
 
-DrawWire::DrawWire() {
+DrawWire::DrawWire(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties) :
+  RawBase(geometry, detectorProperties)
+{
   _name = "DrawWire";
   _producer = "decon1DroiTPC3"; //"butcher";
 
@@ -30,11 +41,11 @@ bool DrawWire::initialize() {
   //
   //
 
-  _padding_by_plane.resize(geoService -> Nviews());
+  _padding_by_plane.resize(geoService.Nviews());
 
-  for (unsigned int p = 0; p < geoService -> Nviews(); p ++) {
-    setXDimension(geoService->Nwires(p), p);
-    setYDimension(detProp -> ReadOutWindowSize(), p);
+  for (unsigned int p = 0; p < geoService.Nviews(); p ++) {
+    setXDimension(geoService.Nwires(p), p);
+    setYDimension(detProp.ReadOutWindowSize(), p);
   }
   initDataHolder();
 
@@ -76,8 +87,9 @@ bool DrawWire::analyze(gallery::Event * ev) {
 
   for (auto const& wire : *wires) {
     unsigned int ch = wire.Channel();
-    unsigned int detWire = geoService->ChannelToWire(ch);
-    unsigned int plane = geoService->ChannelToPlane(ch);
+    std::vector<geo::WireID> widVec = geoService.ChannelToWire(ch);
+    unsigned int detWire = widVec[0].Wire;
+    unsigned int plane = widVec[0].Plane;
     int offset = detWire * _y_dimensions[plane] + _padding_by_plane[plane];
 
     for (auto & iROI : wire.SignalROI().get_ranges()) {
