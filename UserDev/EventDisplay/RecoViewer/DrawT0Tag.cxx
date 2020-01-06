@@ -5,17 +5,15 @@
 
 namespace evd {
 
-  T0Tag DrawT0Tag::getTrack2D(recob::Track track, unsigned int plane) {
+T0Tag DrawT0Tag::getTrack2D(recob::Track track, unsigned int plane) {
     T0Tag result;
-    auto geoHelper = larutil::GeometriaHelper::GetME();
     result._track.reserve(track.NumberTrajectoryPoints());
     for (unsigned int i = 0; i < track.NumberTrajectoryPoints(); i++) {
       // project a point into 2D:
       try {
 	if (track.HasValidPoint(i)) {
 	  auto loc = track.LocationAtPoint(i);
-	  TVector3 xyz(loc.X(),loc.Y(),loc.Z());
-	  auto point = geoHelper->Point_3Dto2D(xyz, plane);
+	  auto point = Point_3Dto2D(loc.X(), loc.Y(), loc.Z(), plane);
 	  result._track.push_back(std::make_pair(point.w, point.t));
 	}
       } catch (...) {
@@ -26,7 +24,9 @@ namespace evd {
     return result;
   }
 
-DrawT0Tag::DrawT0Tag() {
+DrawT0Tag::DrawT0Tag(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties) :
+    RecoBase(geometry, detectorProperties)
+{
   _name = "DrawT0Tag";
   _fout = 0;
 }
@@ -34,25 +34,24 @@ DrawT0Tag::DrawT0Tag() {
 bool DrawT0Tag::initialize() {
 
   // Resize data holder
-  if (_dataByPlane.size() != geoService->Nviews()) {
-    _dataByPlane.resize(geoService->Nviews());
+  if (_dataByPlane.size() != _geoService.Nplanes()) {
+    _dataByPlane.resize(_geoService.Nplanes());
   }
   return true;
 }
 
-bool DrawT0Tag::analyze(gallery::Event *ev) {
-
+bool DrawT0Tag::analyze(gallery::Event *ev) 
+{
   std::cout << "ENTERED T0 DRAW CLASS" << std::endl;
 
-  std::vector<anab::T0>        t0tags; 
-  std::vector<recob::Track>    tracks;
+  std::vector<anab::T0>     t0tags; 
+  std::vector<recob::Track> tracks;
 
   t0tags.clear();
   tracks.clear();
 
   // get handle to the association
-  auto const& assoc_handle   = ev->getValidHandle<art::Assns<recob::Track, anab::T0       >>(_producer);
-
+  auto const& assoc_handle = ev->getValidHandle<art::Assns<recob::Track, anab::T0>>(_producer);
   
   if (assoc_handle->size() == 0)
     return true; // no t0 tag
@@ -68,19 +67,20 @@ bool DrawT0Tag::analyze(gallery::Event *ev) {
   }
 
   // Clear out the data but reserve some space for the tracks
-  for (unsigned int p = 0; p < geoService->Nviews(); p++) {
-    _dataByPlane.at(p).clear();
-    _dataByPlane.at(p).reserve(tracks.size());
-    _wireRange.at(p).first = 99999;
-    _timeRange.at(p).first = 99999;
-    _timeRange.at(p).second = -1.0;
-    _wireRange.at(p).second = -1.0;
+  for (unsigned int p = 0; p < _geoService.Nplanes(); p++) 
+  {
+    _dataByPlane[p].clear();
+    _dataByPlane[p].reserve(tracks.size());
+    _wireRange[p].first = 99999;
+    _timeRange[p].first = 99999;
+    _timeRange[p].second = -1.0;
+    _wireRange[p].second = -1.0;
   }
 
   // Populate the track vector:
   for (auto &track : tracks) {
-    for (unsigned int view = 0; view < geoService->Nviews(); view++) {
-      _dataByPlane.at(view).push_back(getTrack2D(track, view));
+    for (unsigned int plane = 0; plane < _geoService.Nplanes(); plane++) {
+      _dataByPlane[plane].push_back(getTrack2D(track, plane));
     }
   }
 

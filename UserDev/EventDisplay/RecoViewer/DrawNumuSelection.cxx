@@ -11,8 +11,8 @@
 
 namespace evd {
 
-  NumuSelection2D DrawNumuSelection::getNumuSelection2D(const recob::Vertex vtx,const std::vector<recob::Track> tracks, const std::vector<recob::Shower> showers, unsigned int plane) {
-
+NumuSelection2D DrawNumuSelection::getNumuSelection2D(const recob::Vertex vtx,const std::vector<recob::Track> tracks, const std::vector<recob::Shower> showers, unsigned int plane) 
+{
   NumuSelection2D result;
 
   // Vertex
@@ -21,7 +21,7 @@ namespace evd {
     vtx.XYZ(pos);
     if (plane == 2)
       std::cout << "vtx : [ " << pos[0] << ", " << pos[1] << ", " << pos[2] << "  ]" << std::endl;
-    auto point = geoHelper->Point_3Dto2D(pos, plane);
+    auto point = Point_3Dto2D(pos[0], pos[1], pos[2], plane);
     result._vertex = point;
   } catch (...) {
   }
@@ -37,10 +37,9 @@ namespace evd {
     for (unsigned int i = 0; i < trk.NumberTrajectoryPoints(); i++) {
       try {
         if (trk.HasValidPoint(i)) {
-	  auto loc = trk.LocationAtPoint(i);
-	  TVector3 xyz(loc.X(),loc.Y(),loc.Z());
-          auto point = geoHelper->Point_3Dto2D(xyz, plane);
-          trk_out._track.push_back(std::make_pair(point.w, point.t));
+	         auto loc = trk.LocationAtPoint(i);
+           auto point = Point_3Dto2D(loc.X(), loc.Y(), loc.Z(), plane);
+           trk_out._track.push_back(std::make_pair(point.w, point.t));
         }
       } catch (...) {
         continue;
@@ -77,7 +76,9 @@ namespace evd {
   return result;
 }
 
-DrawNumuSelection::DrawNumuSelection() {
+DrawNumuSelection::DrawNumuSelection(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties) :
+    RecoBase(geometry, detectorProperties)
+{
   _name = "DrawNumuSelection";
   _fout = 0;
 }
@@ -85,21 +86,19 @@ DrawNumuSelection::DrawNumuSelection() {
 bool DrawNumuSelection::initialize() {
 
   // Resize data holder
-  if (_dataByPlane.size() != geoService->Nviews()) {
-    _dataByPlane.resize(geoService->Nviews());
+  if (_dataByPlane.size() != _geoService.Nplanes()) {
+    _dataByPlane.resize(_geoService.Nplanes());
   }
   return true;
 }
 
-bool DrawNumuSelection::analyze(gallery::Event *ev) {
-
-
+bool DrawNumuSelection::analyze(gallery::Event *ev) 
+{
   art::InputTag pfp_tag(_producer);
 
   // get vertices and pfparticles associated just so that we have the PFP art::Ptrs
   auto const& vtxHandle =  ev -> getValidHandle<std::vector <recob::Vertex> >(pfp_tag);
   art::FindManyP<recob::PFParticle> vtx_pfp_assn_v(vtxHandle, *ev, pfp_tag);
-
 
   // get a handle to the showers
   auto const& pfpHandle =  ev -> getValidHandle<std::vector <recob::PFParticle> >(pfp_tag);
@@ -175,8 +174,8 @@ bool DrawNumuSelection::analyze(gallery::Event *ev) {
     //art::Ptr<recob::PFParticle> PFPptr(pfpHandle,p);
 
     // get metadata for this PFP
-    //auto &pfParticleMetadataList(pfPartToMetadataAssoc.at(p));
-    //const std::vector< art::Ptr<larpandoraobj::PFParticleMetadata> > &pfParticleMetadataList(pfPartToMetadataAssoc.at(p));
+    //auto &pfParticleMetadataList(pfPartToMetadataAssoc[p]);
+    //const std::vector< art::Ptr<larpandoraobj::PFParticleMetadata> > &pfParticleMetadataList(pfPartToMetadataAssoc[p]);
     
     //  find neutrino candidate
     if (pfp.IsPrimary() == false) continue;
@@ -238,18 +237,18 @@ bool DrawNumuSelection::analyze(gallery::Event *ev) {
   if (neutrinos != 1) return true;
 
   // Clear out the data but reserve some space for the tracks
-  for (unsigned int p = 0; p < geoService->Nviews(); p++) {
-    _dataByPlane.at(p).clear();
-    _dataByPlane.at(p).reserve(1.);
-    _wireRange.at(p).first = 99999;
-    _timeRange.at(p).first = 99999;
-    _timeRange.at(p).second = -1.0;
-    _wireRange.at(p).second = -1.0;
+  for (unsigned int p = 0; p < _geoService.Nplanes(); p++) {
+    _dataByPlane[p].clear();
+    _dataByPlane[p].reserve(1.);
+    _wireRange[p].first = 99999;
+    _timeRange[p].first = 99999;
+    _timeRange[p].second = -1.0;
+    _wireRange[p].second = -1.0;
   }
 
-  for (unsigned int view = 0; view < geoService->Nviews(); view++) {
-    _dataByPlane.at(view).push_back(this->getNumuSelection2D(nuvtx, sliceTracks, sliceShowers, view));
-    _dataByPlane.at(view).back()._hits_v.resize(sliceHitIdx.size());
+  for (unsigned int plane = 0; plane < _geoService.Nplanes(); plane++) {
+    _dataByPlane[plane].push_back(this->getNumuSelection2D(nuvtx, sliceTracks, sliceShowers, plane));
+    _dataByPlane[plane].back()._hits_v.resize(sliceHitIdx.size());
   }
 
   // grab slice -> hit ass vector
@@ -259,8 +258,8 @@ bool DrawNumuSelection::analyze(gallery::Event *ev) {
   for (size_t slicehitidx = 0; slicehitidx < slice_hit_ass.size(); slicehitidx++) {
     
     auto hit = *(slice_hit_ass.at(slicehitidx));
-    unsigned int view = hit.View();
-    _dataByPlane.at(view).back()._slice_hits.emplace_back(
+    unsigned int plane = hit.WireID().Plane;
+    _dataByPlane[plane].back()._slice_hits.emplace_back(
 							  Hit2D(hit.WireID().Wire,
 								hit.PeakTime(),
 								hit.Integral(),
@@ -269,7 +268,7 @@ bool DrawNumuSelection::analyze(gallery::Event *ev) {
 								hit.PeakTime(),
 								hit.EndTick(),
 								hit.PeakAmplitude(),
-								view
+								plane
 								));
     
   }// for all slice-hits
@@ -306,11 +305,12 @@ bool DrawNumuSelection::analyze(gallery::Event *ev) {
     result._is_good = false;
     result._plane = plane;
     // Fill out the parameters of the 2d shower
-    result._startPoint
-      = geoHelper -> Point_3Dto2D(shower.ShowerStart(), plane);
+    const TVector3& showerStart = shower.ShowerStart();
+    result._startPoint = Point_3Dto2D(showerStart.X(), showerStart.Y(), showerStart.Z(), plane);
     
     // Next get the direction:
-    result._angleInPlane = geoHelper->Slope_3Dto2D(shower.Direction(), plane);
+    const TVector3& showerDir = shower.Direction();
+    result._angleInPlane = Slope_3Dto2D(showerDir.X(), showerDir.Y(), showerDir.Z(), plane);
     
     // Get the opening Angle:
     // result._openingAngle = shower.OpeningAngle();
@@ -319,9 +319,7 @@ bool DrawNumuSelection::analyze(gallery::Event *ev) {
     
     auto secondPoint = shower.ShowerStart() + shower.Length() * shower.Direction();
     
-    
-    result._endPoint
-      = geoHelper -> Point_3Dto2D(secondPoint, plane);
+    result._endPoint = Point_3Dto2D(secondPoint.X(), secondPoint.Y(), secondPoint.Z(), plane);
     
     result._length = sqrt(pow(result.startPoint().w - result.endPoint().w, 2) +
 			  pow(result.startPoint().t - result.endPoint().t, 2));

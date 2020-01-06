@@ -8,10 +8,10 @@ class hit(recoBase):
 
     """docstring for hit"""
 
-    def __init__(self):
+    def __init__(self,detectorConfig):
         super(hit, self).__init__()
         self._productName = 'hit'
-        self._process = evd.DrawHit()
+        self._process = evd.DrawHit(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self._brush = (0, 0, 0)
         self.init()
 
@@ -25,7 +25,7 @@ class hit(recoBase):
             # First get the hit information:
             hits = self._process.getDataByPlane(thisPlane)
 
-            for i in xrange(len(hits)):
+            for i in range(len(hits)):
                 hit = hits[i]
                 # Draws a rectangle at (x,y,xlength, ylength)
                 r = QtGui.QGraphicsRectItem(

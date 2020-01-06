@@ -7,7 +7,6 @@ namespace evd {
 
 MCTrack2D DrawMCTrack::getMCTrack2D(simb::MCParticle track, unsigned int plane) {
   MCTrack2D result;
-  auto geoHelper = larutil::GeometriaHelper::GetME();
   result._track.reserve(track.NumberTrajectoryPoints());
   auto vtxtrk = track.Position(0);
   if (plane == 2) {
@@ -19,8 +18,7 @@ MCTrack2D DrawMCTrack::getMCTrack2D(simb::MCParticle track, unsigned int plane) 
     // project a point into 2D:
     try {
       auto pointtrk = track.Position(i);
-      auto point = geoHelper->Point_3Dto2D(pointtrk.X(), pointtrk.Y(),
-                                           pointtrk.Z(), plane);
+      auto point = Point_3Dto2D(pointtrk.X(), pointtrk.Y(), pointtrk.Z(), plane);
       result._track.push_back(std::make_pair(point.w, point.t));
     } catch (...) {
       continue;
@@ -32,7 +30,9 @@ MCTrack2D DrawMCTrack::getMCTrack2D(simb::MCParticle track, unsigned int plane) 
   return result;
 }
 
-DrawMCTrack::DrawMCTrack() {
+DrawMCTrack::DrawMCTrack(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties) :
+    RecoBase(geometry, detectorProperties)
+{
   _name = "DrawMCTrack";
   _fout = 0;
 }
@@ -40,14 +40,14 @@ DrawMCTrack::DrawMCTrack() {
 bool DrawMCTrack::initialize() {
 
   // Resize data holder
-  if (_dataByPlane.size() != geoService->Nviews()) {
-    _dataByPlane.resize(geoService->Nviews());
+  if (_dataByPlane.size() != _geoService.Nplanes()) {
+    _dataByPlane.resize(_geoService.Nplanes());
   }
   return true;
 }
 
-bool DrawMCTrack::analyze(gallery::Event *ev) {
-
+bool DrawMCTrack::analyze(gallery::Event *ev) 
+{
   //
   // Do your event-by-event analysis here. This function is called for
   // each event in the loop. You have "storage" pointer which contains
@@ -67,19 +67,19 @@ bool DrawMCTrack::analyze(gallery::Event *ev) {
 
   // get a handle to the tracks
   art::InputTag tracks_tag(_producer);
-  auto const &trackHandle =
-      ev->getValidHandle<std::vector<simb::MCParticle>>(tracks_tag);
+  auto const &trackHandle = ev->getValidHandle<std::vector<simb::MCParticle>>(tracks_tag);
 
   //std::cout << "there are " << trackHandle->size() << " mctracks" << std::endl;
 
   // Clear out the data but reserve some space for the tracks
-  for (unsigned int p = 0; p < geoService->Nviews(); p++) {
-    _dataByPlane.at(p).clear();
-    _dataByPlane.at(p).reserve(trackHandle->size());
-    _wireRange.at(p).first = 99999;
-    _timeRange.at(p).first = 99999;
-    _timeRange.at(p).second = -1.0;
-    _wireRange.at(p).second = -1.0;
+  for (unsigned int p = 0; p < _geoService.Nplanes(); p++) 
+  {
+      _dataByPlane[p].clear();
+      _dataByPlane[p].reserve(trackHandle->size());
+      _wireRange[p].first = 99999;
+      _timeRange[p].first = 99999;
+      _timeRange[p].second = -1.0;
+      _wireRange[p].second = -1.0;
   }
 
   // Populate the track vector:
@@ -88,9 +88,10 @@ bool DrawMCTrack::analyze(gallery::Event *ev) {
     // pass some minimum threshold in momentum
     if ( (track.NumberTrajectoryPoints() < 5) && (fabs(track.PdgCode() == 11) ) ) continue;
 
-    for (unsigned int view = 0; view < geoService->Nviews(); view++) {
+    for (unsigned int plane = 0; plane < _geoService.Nplanes(); plane++) 
+    {
       if ( (fabs(track.PdgCode()) == 13) || (fabs(track.PdgCode()) == 2212) || (fabs(track.PdgCode()) == 211) || (fabs(track.PdgCode()) == 11) )
-	_dataByPlane.at(view).push_back(getMCTrack2D(track, view));
+	       _dataByPlane[plane].push_back(getMCTrack2D(track, plane));
     }
   }
 

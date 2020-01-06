@@ -9,10 +9,10 @@ class endpoint2d(recoBase):
 
     """docstring for endpoint2d"""
 
-    def __init__(self):
+    def __init__(self,detectorConfig):
         super(endpoint2d, self).__init__()
         self._productName = 'endpoint2d'
-        self._process = evd.DrawEndpoint()
+        self._process = evd.DrawEndpoint(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self._brush = (0, 0, 0)
         self.init()
 

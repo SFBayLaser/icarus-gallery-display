@@ -51,7 +51,7 @@ class DrawCosmicTag : public galleryfmwk::anabase, public RecoBase<CosmicTag> {
 
 public:
   /// Default constructor
-  DrawCosmicTag();
+  DrawCosmicTag(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
   /// Default destructor
   ~DrawCosmicTag();

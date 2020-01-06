@@ -52,7 +52,7 @@ class DrawT0Tag : public galleryfmwk::anabase, public RecoBase<T0Tag> {
 
 public:
   /// Default constructor
-  DrawT0Tag();
+  DrawT0Tag(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
   /// Default destructor
   ~DrawT0Tag();

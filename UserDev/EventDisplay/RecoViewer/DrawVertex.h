@@ -17,14 +17,13 @@
 
 #include "Analysis/anabase.h"
 #include "RecoBase.h"
-#include "LArUtil/Geometria.h"
 
 #include "lardataobj/RecoBase/Vertex.h"
 
 
 namespace evd {
 
-  typedef larutil::Point2D Vertex2D;
+  typedef evd::Point2D Vertex2D;
 
 /**
    \class DrawVertex
@@ -35,7 +34,7 @@ class DrawVertex : public galleryfmwk::anabase, public RecoBase<Vertex2D> {
 public:
 
   /// Default constructor
-  DrawVertex();
+  DrawVertex(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
   /// Default destructor
   virtual ~DrawVertex() {};

@@ -52,9 +52,9 @@ class event(object):
 
 class manager(event):
   """docstring for manager"""
-  def __init__(self, geom,file=None):
+  def __init__(self, detectorConfig,file=None):
     super(manager, self).__init__()
-    self._geom = geom
+    self._detectorConfig = detectorConfig
     
     # The manager needs to know about the gui and the view manager
     # It needs to be able to call a few of their methods to update things

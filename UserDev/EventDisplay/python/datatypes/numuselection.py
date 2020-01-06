@@ -8,10 +8,10 @@ from datatypes.shower import shower_polygon
 
 class numuselection(recoBase):
     """docstring for numuselection"""
-    def __init__(self):
+    def __init__(self,detectorConfg):
         super(numuselection, self).__init__()
         self._productName = 'numuselection'
-        self._process = evd.DrawNumuSelection()
+        self._process = evd.DrawNumuSelection(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self._brush = (0, 0, 0)
         self.init()
 

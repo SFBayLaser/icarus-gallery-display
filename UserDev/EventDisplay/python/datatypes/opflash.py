@@ -19,10 +19,10 @@ try:
         preSpillColor = (1.0, 0, 0, 0.2)
         postSpillColor = (0, 0, 1.0, 0.2)
 
-        def __init__(self):
+        def __init__(self,detectorConfig):
             super(opflash3D, self).__init__()
             self._productName = 'opflash3D'
-            self._process = evd.DrawOpflash3D()
+            self._process = evd.DrawOpflash3D(detectorConfig._geometryCore,detectorConfig._detectorProperties)
             self.init()
             self._triggerOffset \
                 = larutil.DetProperties.GetME().TriggerOffset()

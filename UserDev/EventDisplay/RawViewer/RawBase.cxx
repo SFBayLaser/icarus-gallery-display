@@ -106,7 +106,6 @@ void RawBase::initDataHolder()
 
     for (size_t i = 0; i < _x_dimensions.size(); i ++ ) 
     {
-      std::cout << "initDataHolder plane " << i << ", x,y dim: " << _x_dimensions.at(i) << "," << _y_dimensions.at(i) << ", total: " << _x_dimensions.at(i) * _y_dimensions.at(i) << std::endl;
       _planeData.at(i).resize(_x_dimensions.at(i) * _y_dimensions.at(i));
     }
     return;

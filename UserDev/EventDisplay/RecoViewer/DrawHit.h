@@ -66,12 +66,13 @@ public:
     int   plane()  {return _plane;}
 };
 
-class DrawHit : public galleryfmwk::anabase, public RecoBase<Hit2D> {
+class DrawHit : public galleryfmwk::anabase, public RecoBase<Hit2D> 
+{
 
 public:
 
     /// Default constructor
-    DrawHit();
+    DrawHit(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
     /// Default destructor
     // ~DrawHit(){}

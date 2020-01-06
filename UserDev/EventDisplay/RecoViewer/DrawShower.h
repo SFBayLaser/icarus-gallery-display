@@ -21,6 +21,7 @@
 #include "DrawCluster.h"
 
 #include "lardataobj/RecoBase/Shower.h"
+#include "larcorealg/Geometry/SimpleGeo.h"
 /**
    \class DrawShower
    User defined class DrawShower ... these comments are used to generate
@@ -43,8 +44,8 @@ namespace evd {
     ~Shower2D() {}
 
     int plane() {return _plane;}
-    larutil::Point2D startPoint() {return _startPoint;}
-    larutil::Point2D endPoint() {return _endPoint;}
+    evd::Point2D startPoint() {return _startPoint;}
+    evd::Point2D endPoint()   {return _endPoint;}
     float angleInPlane() {return _angleInPlane;}
     float openingAngle() {return _openingAngle;}
     float length() {return _length;}
@@ -53,15 +54,15 @@ namespace evd {
     float energy() { return _energy; }
 
     // ALL OF THESE VARIABLES ARE THE PROJECTION INTO THE PLANE
-    int _plane;                ///< The Plane of the shower
-    larutil::Point2D _startPoint;      ///< Wire time start point (units in cm)
-    larutil::Point2D _endPoint;      ///< Wire time start point (units in cm)
-    float _angleInPlane;       ///< Angle in the plane
-    float _openingAngle;       ///< Opening angle
-    float _length;             ///< Length in cm
-    float _energy;             ///< Energy in MeV
-    bool _is_good;             ///< Whether or not the projection succeeded
-    float _dedx;                ///< dedx in collection plane, for printout
+    int _plane;               ///< The Plane of the shower
+    evd::Point2D _startPoint; ///< Wire time start point (units in cm)
+    evd::Point2D _endPoint;   ///< Wire time start point (units in cm)
+    float _angleInPlane;      ///< Angle in the plane
+    float _openingAngle;      ///< Opening angle
+    float _length;            ///< Length in cm
+    float _energy;            ///< Energy in MeV
+    bool _is_good;            ///< Whether or not the projection succeeded
+    float _dedx;              ///< dedx in collection plane, for printout
 
     // cluster collection
     std::vector<evd::Cluster2D> _showerCluster_v;
@@ -74,7 +75,7 @@ class DrawShower : public galleryfmwk::anabase, public RecoBase<Shower2D> {
 public:
 
     /// Default constructor
-    DrawShower();
+    DrawShower(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
     /// Default destructor
     // ~DrawShower(){}

@@ -41,7 +41,6 @@ bool DrawRawDigit::initialize()
     _padding_by_plane.resize(geoService.Nplanes());
     for (unsigned int p = 0; p < geoService.Nplanes(); p++) 
     {
-        std::cout << "Setting dimensions for plane " << p << ", xdim: " << geoService.Nwires(p) << ", ydim: " << detProp.ReadOutWindowSize() << std::endl;
         setXDimension(geoService.Nwires(p), p);
         setYDimension(detProp.ReadOutWindowSize(), p);
     }
@@ -80,8 +79,6 @@ bool DrawRawDigit::analyze(gallery::Event *ev)
   
     _producer = "rawDigitFilterTPC2";
   
-    std::cout << "(((DrawRawDigit::analyze entered, ev: " << ev << ", looking for data tagged: " << _producer << std::endl;
-  
     art::InputTag wires_tag(_producer);
   
     std::cout << "   wires_tag: " << wires_tag << std::endl;
@@ -95,13 +92,11 @@ bool DrawRawDigit::analyze(gallery::Event *ev)
     // vector -> fix.
     if (raw_digits->size() > 0) 
     {
-        std::cout << "   --> geoService: " << &geoService << ", #planes: " << geoService.Nplanes() << std::endl;
         for (size_t pl = 0; pl < geoService.Nplanes(); pl++) 
         {
             if (_y_dimensions[pl] < raw_digits->front().ADCs().size()) 
             {
                 _y_dimensions[pl] = raw_digits->front().ADCs().size();
-                std::cout << "   --> Reset y dim for plane " << pl << " to " << _y_dimensions[pl] << std::endl;
             }
         }
     }
@@ -134,7 +129,6 @@ bool DrawRawDigit::analyze(gallery::Event *ev)
         std::vector<geo::WireID> widVec = geoService.ChannelToWire(ch);
         unsigned int wire = widVec[0].Wire;
         unsigned int plane = widVec[0].Plane;
-        std::cout << "  --> plane: " << plane << ", wire: " << wire << ", pedestal: " << ped << std::endl;
     
         if (wire > geoService.Nwires(plane)) continue;
     
@@ -179,8 +173,6 @@ bool DrawRawDigit::analyze(gallery::Event *ev)
     {
         size_t n_wires = temp_data_holder[i_plane].size() / n_ticks;
   
-        std::cout << "   ** filling data, n_wires: " << n_wires << ", n_ticks: " << n_ticks << std::endl;
-
         std::vector<float>& planeTempData = temp_data_holder[i_plane];
         std::vector<float>& planeData     = _planeData[i_plane];
   

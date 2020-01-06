@@ -15,11 +15,11 @@
 #define GALLERY_FMWK_GEOMETRYHELPER_H
 
 #include <iostream>
-#include "PxUtils.h"
-#include "Geometria.h"
 #include <climits>
 #include <limits>
 
+#include "PxUtils.h"
+#include "Geometria.h"
 #include "DetProperties.h"
 #include "LArProp.h"
 

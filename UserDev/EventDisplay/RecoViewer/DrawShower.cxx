@@ -6,8 +6,8 @@
 namespace evd {
 
 
-DrawShower::DrawShower()
-  : RecoBase<Shower2D>()
+DrawShower::DrawShower(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties)
+  : RecoBase<Shower2D>(geometry,detectorProperties)
 {
   _name = "DrawShower";
   _fout = 0;
@@ -17,8 +17,8 @@ DrawShower::DrawShower()
 bool DrawShower::initialize() {
 
   // // Resize data holder to accommodate planes and wires:
-  if (_dataByPlane.size() != geoService -> Nviews()) {
-    _dataByPlane.resize(geoService -> Nviews());
+  if (_dataByPlane.size() != _geoService.Nplanes()) {
+    _dataByPlane.resize(_geoService.Nplanes());
   }
   return true;
 
@@ -28,25 +28,21 @@ bool DrawShower::analyze(gallery::Event * ev) {
 
   // get a handle to the showers
   art::InputTag shower_tag(_producer);
-  auto const & showerHandle
-    = ev -> getValidHandle<std::vector <recob::Shower> >(shower_tag);
+  auto const & showerHandle = ev -> getValidHandle<std::vector <recob::Shower> >(shower_tag);
 
   // draw associated hits too
   art::InputTag assn_tag(_producer);
   art::FindMany<recob::Hit> hits_for_shower(showerHandle, *ev, assn_tag);
 
-
-  if (showerHandle -> size() == 0) {
+  if (showerHandle->size() == 0) {
     std::cout << "No showers available to draw by producer "
               << _producer
               << std::endl;
     return true;
   }
 
-
-
   // Clear out the hit data but reserve some space for the showers
-  for (unsigned int p = 0; p < geoService -> Nviews(); p ++) {
+  for (unsigned int p = 0; p < _geoService.Nplanes(); p ++) {
     _dataByPlane.at(p).clear();
     _dataByPlane.at(p).reserve(showerHandle -> size());
     _wireRange.at(p).first  = 99999;
@@ -55,17 +51,17 @@ bool DrawShower::analyze(gallery::Event * ev) {
     _wireRange.at(p).second = -1.0;
   }
 
-
   // Populate the shower vector:
-  for (size_t s = 0; s < showerHandle->size(); s++) {
-
+  for (size_t s = 0; s < showerHandle->size(); s++) 
+  {
     auto const& shower = showerHandle->at(s);
 
     std::vector<recob::Hit const*> hits;
     hits_for_shower.get(s, hits);
     std::cout << "There are " << hits.size() << " associated with this shower" << std::endl;
 
-    for (unsigned int view = 0; view < geoService -> Nviews(); view++) {
+    for (unsigned int view = 0; view < _geoService.Nplanes(); view++) 
+    {
       // get the reconstructed shower for this plane
       auto shr2D = getShower2d(shower, view);
 
@@ -76,9 +72,10 @@ bool DrawShower::analyze(gallery::Event * ev) {
       clus._is_good = true;
 
       // loop through hits and figure out if any are from this plane
-      for (auto const& hit : hits) {
+      for (auto const& hit : hits) 
+      {
 	
-	if (hit->WireID().Plane != view) continue;
+	       if (hit->WireID().Plane != view) continue;
 	
 	Hit2D hit2d(hit->WireID().Wire,
 		  hit->PeakTime(),
@@ -114,19 +111,20 @@ bool DrawShower::finalize() {
 
 
 
-Shower2D DrawShower::getShower2d(recob::Shower shower, unsigned int plane) {
-
-
-
+Shower2D DrawShower::getShower2d(recob::Shower shower, unsigned int plane) 
+{
   Shower2D result;
   result._is_good = false;
   result._plane = plane;
   // Fill out the parameters of the 2d shower
-  result._startPoint
-    = geoHelper -> Point_3Dto2D(shower.ShowerStart(), plane);
+  const TVector3& showerStart = shower.ShowerStart();
+
+  result._startPoint = Point_3Dto2D(showerStart.X(), showerStart.Y(), showerStart.Z(), plane);
 
   // Next get the direction:
-  result._angleInPlane = geoHelper->Slope_3Dto2D(shower.Direction(), plane);
+  const TVector3& showerDir = shower.Direction();
+
+  result._angleInPlane = Slope_3Dto2D(showerDir.X(), showerDir.Y(), showerDir.Z(), plane);
 
   // Get the opening Angle:
   // result._openingAngle = shower.OpeningAngle();
@@ -137,8 +135,7 @@ Shower2D DrawShower::getShower2d(recob::Shower shower, unsigned int plane) {
   auto secondPoint = shower.ShowerStart() + shower.Length() * shower.Direction();
 
 
-  result._endPoint
-    = geoHelper -> Point_3Dto2D(secondPoint, plane);
+  result._endPoint = Point_3Dto2D(secondPoint.X(), secondPoint.Y(), secondPoint.Z(), plane);
 
   result._length = sqrt(pow(result.startPoint().w - result.endPoint().w, 2) +
                         pow(result.startPoint().t - result.endPoint().t, 2));

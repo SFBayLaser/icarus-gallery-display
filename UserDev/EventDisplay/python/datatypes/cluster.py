@@ -9,10 +9,10 @@ class cluster(recoBase):
 
     """docstring for cluster"""
 
-    def __init__(self):
+    def __init__(self,detectorConfig):
         super(cluster, self).__init__()
         self._productName = 'cluster'
-        self._process = evd.DrawCluster()
+        self._process = evd.DrawCluster(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self.init()
 
 

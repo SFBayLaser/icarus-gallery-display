@@ -25,11 +25,11 @@ class polyLine(QtGui.QGraphicsPathItem):
 
 class t0(recoBase):
 
-    def __init__(self):
+    def __init__(self,detectorConfig):
         super(t0, self).__init__()
         self._productName = 't0'
         evd.DrawTrack()
-        self._process = evd.DrawT0Tag()
+        self._process = evd.DrawT0Tag(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self.init()
 
 

@@ -156,7 +156,7 @@ try:
 
             showers = self._process.getData()
 
-            for i in xrange(len(showers)):
+            for i in range(len(showers)):
                 shower = showers[i]
 
                 if abs(shower.pdg()) == 11:

@@ -30,12 +30,12 @@
 namespace evd {
 
 
-  class DrawSpacepoint : public galleryfmwk::anabase, public RecoBase<larutil::Point2D> {
-
+class DrawSpacepoint : public galleryfmwk::anabase, public RecoBase<evd::Point2D> 
+{
 public:
 
     /// Default constructor
-    DrawSpacepoint();
+    DrawSpacepoint(const geo::GeometryCore& geometry, const detinfo::DetectorProperties& detectorProperties);
 
     /// Default destructor
     ~DrawSpacepoint();

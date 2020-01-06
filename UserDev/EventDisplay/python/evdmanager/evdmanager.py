@@ -69,11 +69,13 @@ class processer(object):
     def process_event(self, gallery_event):
         # print "Running ... "
         print("  ==> prcessing event, ana_units len:",len(self._ana_units))
+        print(self._ana_units)
         for key in self._ana_units:
-            print("Processing " + key)
+#            print("Processing " + key)
             self._ana_units[key].analyze(gallery_event)
 
     def add_process(self, data_product, ana_unit):
+        print("-->> Adding process, data_product type:",type(data_product))
         if data_product in self._ana_units:
             self._ana_units.pop(data_product)
         self._ana_units.update({data_product : ana_unit})
@@ -99,9 +101,9 @@ class evd_manager_base(manager, QtCore.QObject):
 
     """docstring for lariat_manager"""
 
-    def __init__(self, geom, file=None):
-        super(evd_manager_base, self).__init__(geom, file)
-        manager.__init__(self, geom, file)
+    def __init__(self, detectorConfig, file=None):
+        super(evd_manager_base, self).__init__(detectorConfig, file)
+        manager.__init__(self, detectorConfig, file)
         QtCore.QObject.__init__(self)
         # For the larlite manager, need both the ana_processor and
         # the storage manager
@@ -345,8 +347,8 @@ class evd_manager_2D(evd_manager_base):
     Class to handle the 2D specific aspects of viewer
     '''
 
-    def __init__(self, geom, file=None):
-        super(evd_manager_2D, self).__init__(geom, file)
+    def __init__(self, detectorConfig, file=None):
+        super(evd_manager_2D, self).__init__(detectorConfig, file)
         self._drawableItems = datatypes.drawableItems()
 
     # this function is meant for the first request to draw an object or
@@ -371,7 +373,8 @@ class evd_manager_2D(evd_manager_base):
         if informal_type in self._drawableItems.getListOfTitles():
             # drawable items contains a reference to the class, so instantiate
             # it
-            drawingClass = self._drawableItems.getDict()[informal_type][0]()
+            print("==>> Initializing drawing object:",informal_type)
+            drawingClass = self._drawableItems.getDict()[informal_type][0](self._detectorConfig)
             # Special case for clusters, connect it to the signal:
             # if name == 'Cluster':
             #     self.noiseFilterChanged.connect(
@@ -385,6 +388,7 @@ class evd_manager_2D(evd_manager_base):
                 self.noiseFilterChanged.connect(
                     drawingClass.runNoiseFilter)
 
+            print("==>> Setting producer:",product.fullName())
             drawingClass.setProducer(product.fullName())
             self._processer.add_process(product, drawingClass._process)
             self._drawnClasses.update({informal_type: drawingClass})
@@ -431,10 +435,10 @@ class evd_manager_2D(evd_manager_base):
 
         # Pad the ranges by 1 cm to accommodate
         padding = 5
-        xRange[0] = max(xRangeMax[0], xRange[0] - padding/self._geom.wire2cm())
-        xRange[1] = min(xRangeMax[1], xRange[1] + padding/self._geom.wire2cm())
-        yRange[0] = max(yRangeMax[0], yRange[0] - padding/self._geom.time2cm())
-        yRange[1] = min(yRangeMax[1], yRange[1] + padding/self._geom.time2cm())
+        xRange[0] = max(xRangeMax[0], xRange[0] - padding/self._detectorConfig.wire2cm())
+        xRange[1] = min(xRangeMax[1], xRange[1] + padding/self._detectorConfig.wire2cm())
+        yRange[0] = max(yRangeMax[0], yRange[0] - padding/self._detectorConfig.time2cm())
+        yRange[1] = min(yRangeMax[1], yRange[1] + padding/self._detectorConfig.time2cm())
         return xRange, yRange
 
     # handle all the wire stuff:
@@ -451,7 +455,7 @@ class evd_manager_2D(evd_manager_base):
                 self._drawWires = False
                 return
             self._drawWires = True
-            self._wireDrawer = datatypes.recoWire(self._geom)
+            self._wireDrawer = datatypes.recoWire(self._detectorConfig)
             self._wireDrawer.setProducer(self._keyTable[stage]['recob::Wire'][0].fullName())
             self._processer.add_process("recob::Wire",self._wireDrawer._process)
             self.processEvent(True)
@@ -463,7 +467,7 @@ class evd_manager_2D(evd_manager_base):
                 return
             print("  --> in rawdigit block, setting up wireDrawer")
             self._drawWires = True
-            self._wireDrawer = datatypes.rawDigit(self._geom)
+            self._wireDrawer = datatypes.rawDigit(self._detectorConfig)
             self._wireDrawer.setProducer(self._keyTable[stage]['raw::RawDigit'][0].fullName())
             self._processer.add_process("raw::RawDigit", self._wireDrawer._process)
             self._wireDrawer.toggleNoiseFilter(self.filterNoise)
@@ -513,8 +517,8 @@ try:
 
         showMCCosmic = True
 
-        def __init__(self, geom, file=None):
-            super(evd_manager_3D, self).__init__(geom, file)
+        def __init__(self, detectorConfig, file=None):
+            super(evd_manager_3D, self).__init__(detectorConfig, file)
             self._drawableItems = datatypes.drawableItems3D()
 
         def getAutoRange(self):

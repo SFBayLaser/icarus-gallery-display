@@ -8,10 +8,10 @@ from datatypes.track import polyLine
 
 class mctrack(recoBase):
 
-    def __init__(self):
+    def __init__(self,detectorConfig):
         super(mctrack, self).__init__()
         self._productName = 'mctrack'
-        self._process = evd.DrawMCTrack()
+        self._process = evd.DrawMCTrack(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self.init()
 
     def drawObjects(self, view_manager):
@@ -23,7 +23,7 @@ class mctrack(recoBase):
             tracks = self._process.getDataByPlane(view.plane())
             offset = geom.offset(view.plane()) / geom.time2cm()
 
-            for i in xrange(len(tracks)):
+            for i in range(len(tracks)):
                 track = tracks[i]
                 # construct a polygon for this track:
                 points = []

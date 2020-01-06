@@ -20,17 +20,14 @@
 #include "larcorealg/Geometry/GeometryCore.h"
 #include "lardataalg/DetectorInfo/DetectorProperties.h"
 
-
 struct _object;
 typedef _object PyObject;
-
 
 #ifndef __CLING__
 #include "Python.h"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
 #endif
-
 
 namespace evd {
 

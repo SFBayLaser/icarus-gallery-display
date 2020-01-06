@@ -25,11 +25,11 @@ class polyLine(QtGui.QGraphicsPathItem):
 
 class cosmictag(recoBase):
 
-    def __init__(self):
+    def __init__(self,detectorConfig):
         super(cosmictag, self).__init__()
         self._productName = 'cosmictag'
         evd.DrawTrack()
-        self._process = evd.DrawCosmicTag()
+        self._process = evd.DrawCosmicTag(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self.init()
 
 

@@ -24,11 +24,11 @@ class recoWire(wire):
         self._process = evd.DrawWire(detectorConfig._geometryCore,detectorConfig._detectorProperties)
         self._process.initialize()
         self._process.setInput(self._producerName)
-        for plane in range(detectorConfig.nViews()):
-            self._process.setYDimension(geom.readoutWindowSize(),plane)
-            print(geom.readoutPadding())
-            if geom.readoutPadding() != 0:
-                self._process.setPadding(geom.readoutPadding(), plane)
+        for plane in range(detectorConfig.Nplanes()):
+            self._process.setYDimension(detectorConfig.readoutWindowSize(),plane)
+            print(detectorConfig.readoutPadding())
+            if detectorConfig.readoutPadding() != 0:
+                self._process.setPadding(detectorConfig.readoutPadding(), plane)
 
     def setProducer(self, producer):
         self._producerName = producer
